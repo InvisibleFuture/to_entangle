@@ -184,3 +184,8 @@ func New(path string) *ToEntangle {
 		db: db,
 	}
 }
+
+// Close 关闭 leveldb
+func (t *ToEntangle) Close() {
+	t.db.Close()
+}
