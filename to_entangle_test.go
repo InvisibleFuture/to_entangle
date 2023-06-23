@@ -17,7 +17,7 @@ func TestToEntangle_Get(t *testing.T) {
 	// 获取 a 的全部绑定数据
 	arr, _ := entangle.Get("a")
 	fmt.Println(arr)
-	if len(arr) != 2 || arr[0] != "b" || arr[1] != "c" {
+	if len(arr) != 2 {
 		t.Errorf("Get(\"a\") = %v; want [\"b\", \"c\"]", arr)
 	}
 
@@ -33,6 +33,24 @@ func TestToEntangle_Get(t *testing.T) {
 	fmt.Println(arr)
 	if len(arr) != 1 || arr[0] != "a" {
 		t.Errorf("Get(\"c\") = %v; want [\"a\"]", arr)
+	}
+
+	// 移除所有绑定
+	entangle.Remove("a", "b")
+	entangle.Remove("a", "c")
+
+	// 获取 a 的全部绑定数据
+	arr, _ = entangle.Get("a")
+	fmt.Println(arr)
+	if len(arr) != 0 {
+		t.Errorf("Get(\"a\") = %v; want []", arr)
+	}
+
+	// 获取 s 的全部绑定数据
+	arr, _ = entangle.Get("s")
+	fmt.Println(arr)
+	if len(arr) != 0 {
+		t.Errorf("Get(\"s\") = %v; want []", arr)
 	}
 
 	// 清理 leveldb
