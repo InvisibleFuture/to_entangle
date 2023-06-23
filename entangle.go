@@ -7,19 +7,19 @@ import (
 	leveldb "github.com/syndtr/goleveldb/leveldb"
 )
 
+// 单表之内的双向绑定
 // 1. 存入一对数据, 使其双向绑定
 // 2. 移除一对数据, 使其双向解绑
 // 3. 移除一个数据, 使其全部解绑
 // 4. 获取一个数据的全部绑定数据
 
-type ToEntangle struct {
+type Entangle struct {
 	lock sync.Mutex
 	db   *leveldb.DB
 }
 
 // Get 获取一个数据的全部绑定数据
-func (t *ToEntangle) Get(a string) (arr []string, err error) {
-	// 获取 a 的数据, 如果不存在, 则直接返回空数组
+func (t *Entangle) Get(a string) (arr []string, err error) {
 	data, err := t.db.Get([]byte(a), nil)
 	if err != nil {
 		if err == leveldb.ErrNotFound {
@@ -27,8 +27,6 @@ func (t *ToEntangle) Get(a string) (arr []string, err error) {
 		}
 		return nil, err
 	}
-
-	// data 为json字符串的数组, 解码后返回
 	err = jsoniter.Unmarshal(data, &arr)
 	if err != nil {
 		return nil, err
@@ -37,7 +35,7 @@ func (t *ToEntangle) Get(a string) (arr []string, err error) {
 }
 
 // Add 添加一对数据, 使其双向绑定
-func (t *ToEntangle) Add(a string, b string) (err error) {
+func (t *Entangle) Add(a string, b string) (err error) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -90,7 +88,7 @@ func (t *ToEntangle) Add(a string, b string) (err error) {
 }
 
 // 单向解绑
-func (t *ToEntangle) remove_item(a string, b string) (err error) {
+func (t *Entangle) remove_item(a string, b string) (err error) {
 	// 获取 a 的数据, 如果不存在, 则直接返回
 	data, err := t.db.Get([]byte(a), nil)
 	if err != nil {
@@ -126,7 +124,7 @@ func (t *ToEntangle) remove_item(a string, b string) (err error) {
 }
 
 // Remove 移除一对数据, 使其双向解绑
-func (t *ToEntangle) Remove(a string, b string) (err error) {
+func (t *Entangle) Remove(a string, b string) (err error) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -141,7 +139,7 @@ func (t *ToEntangle) Remove(a string, b string) (err error) {
 }
 
 // RemoveAll 移除一个数据, 使其全部解绑
-func (t *ToEntangle) RemoveAll(a string) (err error) {
+func (t *Entangle) RemoveAll(a string) (err error) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -174,18 +172,18 @@ func (t *ToEntangle) RemoveAll(a string) (err error) {
 	return nil
 }
 
-// New 创建一个 ToEntangle
-func New(path string) *ToEntangle {
+// New 创建一个 Entangle
+func NewEntangle(path string) *Entangle {
 	db, err := leveldb.OpenFile(path, nil)
 	if err != nil {
 		panic(err)
 	}
-	return &ToEntangle{
+	return &Entangle{
 		db: db,
 	}
 }
 
 // Close 关闭 leveldb
-func (t *ToEntangle) Close() {
+func (t *Entangle) Close() {
 	t.db.Close()
 }
